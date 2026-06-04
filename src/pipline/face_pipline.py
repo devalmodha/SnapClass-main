@@ -4,6 +4,7 @@ import face_recognition_models
 from sklearn.svm import SVC
 import streamlit as st
 from src.database.db import get_all_students
+import time
 
 
 @st.cache_resource
@@ -14,7 +15,8 @@ def load_dlib_models():
     sp = dlib.shape_predictor(
         face_recognition_models.pose_predictor_model_location()
     )
-    facerec = dlib.face_recorgnation_model_v1(
+   
+    facerec = dlib.face_recognition_model_v1(
         face_recognition_models.face_recognition_model_location()
     )
 
@@ -59,6 +61,41 @@ def get_trained_model():
     except ValueError:
         pass
     return {'clf':clf,'X':X,'y':y}
+# @st.cache_resource
+# def get_trained_model():
+#     X = []
+#     y = []
+
+#     # ✅ retry up to 3 times
+#     student_db = None
+#     for attempt in range(3):
+#         try:
+#             student_db = get_all_students()
+#             break
+#         except Exception as e:
+#             print(f"DB attempt {attempt+1} failed: {e}")
+#             if attempt < 2:
+#                 time.sleep(2)
+
+#     if not student_db:
+#         return None
+
+#     for student in student_db:
+#         embedding = student.get('face_embedding')
+#         if embedding:
+#             X.append(np.array(embedding))
+#             y.append(student.get('student_id'))
+
+#     if len(X) == 0:
+#         return None
+
+#     clf = SVC(kernel='linear', probability=True, class_weight='balanced')
+#     try:
+#         clf.fit(X, y)
+#     except ValueError:
+#         return None
+
+#     return {'clf': clf, 'X': X, 'y': y}
 
 
 
@@ -96,4 +133,4 @@ def predict_attendence(class_image_np):
 
         if best_match_score <= resemblance_thresholds:
             detected_student[predicted_id] = True
-    return detected_student, all_students,len(encoding)            
+    return detected_student, all_students,len(encodings)            

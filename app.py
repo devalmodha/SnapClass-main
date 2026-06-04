@@ -3,22 +3,19 @@ import streamlit as st
 from src.screen.home_screen import home_screen
 from src.screen.teacher_screen import teacher_screen
 from src.screen.student_screen import student_screen
+from src.components.dialog_auto_enroll import auto_enroll_dialog
 
-# import streamlit as st
-# st.write("URL:", st.secrets["SUPABASE_URL"])
 
-# from src.database.config import supabase
-# try:
-#     r = supabase.table("teachers").select("*").limit(1).execute()
-#     st.success("✅ Connected successfully!")
-# except Exception as e:
-#     st.error(f"❌ Error: {e}")
 
 def main():
-    if 'login-type' not in st.session_state:
-        st.session_state['login-type'] = None
+    st.set_page_config(
+        page_title='SnapClass - Making Attendance Faster Using AI',
+        page_icon="https://i.ibb.co/YTYGn5qV/logo.png"
+    )
+    if 'login_type' not in st.session_state:
+        st.session_state['login_type'] = None
 
-    match st.session_state['login-type']:
+    match st.session_state['login_type']:
         case 'teacher':
             teacher_screen()
         case 'student':
@@ -27,6 +24,13 @@ def main():
            home_screen()
             
 
+    join_code = st.query_params.get('join_code')
+    if join_code:
+        if st.session_state.login_type != 'student':
+            st.session_state.login_type = 'student'
+            st.rerun()
+        if st.session_state.get('is_logged_in') and st.session_state.get('user_role') =='student':
+            auto_enroll_dialog(join_code)   
 
 
 main()    
