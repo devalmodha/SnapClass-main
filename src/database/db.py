@@ -27,8 +27,18 @@ def teacher_login(username, password):
 
 
 def get_all_students():
-    response = supabase.table("students").select("*").execute()
-    return response.data
+    # response = supabase.table("students").select("*").execute()
+    # return response.data
+    max_retries = 3
+    for attempt in range(max_retries):
+        try:
+            response = supabase.table("students").select("*").execute()
+            return response.data
+        except Exception as e:
+            if attempt < max_retries - 1:
+                time.sleep(2)
+                continue
+            raise e
 
 def create_student(new_name,face_embedding = None , voice_embedding = None):
     data = {'name': new_name,'face_embedding':face_embedding,'voice_embedding': voice_embedding}
